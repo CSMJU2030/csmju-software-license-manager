@@ -15,17 +15,25 @@ public_endpoints:
 
 # conformance ใช้ probes ตรวจสัญญา API — ประกาศไม่ครบ = ขึ้น SKIP = ยังไม่ผ่าน
 probes:
-  collection: /api/v1/<resources>
-  not_found: /api/v1/<resources>/99999999-9999-4999-8999-999999999999
-  invalid_id: /api/v1/<resources>/not-a-uuid
+  collection: /api/v1/software-licenses
+  not_found: /api/v1/software-licenses/99999999-9999-4999-8999-999999999999
+  invalid_id: /api/v1/software-licenses/not-a-uuid
   create:
-    path: /api/v1/<resources>
+    path: /api/v1/software-licenses
     allowed_role: staff
     denied_role: student
     invalid_body:
-      someRequiredField: ""
+      softwareName: ""
+      licenseQuantity: 0
+      expiryDate: "not-a-date"
     valid_body:
-      someRequiredField: value
+      softwareName: "Conformance Test Software"
+      provider: "Test Provider"
+      licenseType: "Subscription"
+      licenseQuantity: 1
+      expiryDate: "2027-10-04T00:00:00.000Z"
+      cost: 100
+      currency: "THB"
 
 owners:
   pl: "@csmju2030/pl-software-license-manager"
@@ -33,4 +41,12 @@ owners:
 
 display_name: "CS Software License Manager"
 repo: github.com/CSMJU2030/csmju-software-license-manager
-status: proposed
+
+default_role_mapping:
+  admin: LICENSE_ADMIN
+  staff: LICENSE_EDITOR
+  alumni: VIEWER
+  student: VIEWER
+
+approval_status: APPROVED
+status: ACTIVE

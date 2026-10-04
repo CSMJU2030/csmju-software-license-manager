@@ -1,0 +1,99 @@
+// CSMJU Software License Manager
+//
+// Own database schema.
+// This subsystem does NOT contain Core Hub users.
+// `coreUserId` is an external reference to the Core Hub user id (`sub`).
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../generated/prisma"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SoftwareLicenseStatus {
+  ACTIVE
+  EXPIRING
+  EXPIRED
+  SUSPENDED
+}
+
+model SoftwareLicense {
+  id String @id @default(uuid())
+
+  softwareName String @map("software_name")
+  provider     String?
+  licenseType  String?  @map("license_type")
+
+  licenseQuantity Int @map("license_quantity")
+
+  startDate  DateTime? @map("start_date")
+  expiryDate DateTime  @map("expiry_date")
+
+  cost     Int?
+  currency String @default("THB")
+
+  status SoftwareLicenseStatus @default(ACTIVE)
+
+  deletedAt DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  assignments LicenseAssignment[]
+  auditLogs   AuditLog[]
+
+  @@index([softwareName])
+  @@index([provider])
+  @@index([status])
+  @@index([expiryDate])
+  @@index([deletedAt])
+  @@map("software_licenses")
+}
+
+model LicenseAssignment {
+  id String @id @default(uuid())
+
+  softwareLicenseId String @map("software_license_id")
+  coreUserId        String @map("core_user_id")
+
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  softwareLicense SoftwareLicense @relation(fields: [softwareLicenseId], references: [id], onDelete: Restrict)
+
+  @@unique([softwareLicenseId, coreUserId])
+  @@index([softwareLicenseId])
+  @@index([coreUserId])
+  @@index([deletedAt])
+  @@map("license_assignments")
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  softwareLicenseId String @map("software_license_id")
+  coreUserId        String @map("core_user_id")
+
+  action String
+
+  fieldName String? @map("field_name")
+  oldValue  String? @map("old_value")
+  newValue  String? @map("new_value")
+
+  createdAt DateTime @default(now()) @map("created_at")
+updatedAt DateTime @updatedAt @map("updated_at")
+
+softwareLicense SoftwareLicense @relation(fields: [softwareLicenseId], references: [id], onDelete: Restrict)
+  @@index([softwareLicenseId])
+  @@index([coreUserId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
