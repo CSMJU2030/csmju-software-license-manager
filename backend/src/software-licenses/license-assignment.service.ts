@@ -22,78 +22,74 @@ export class LicenseAssignmentService {
   }
 
   async create(
-  softwareLicenseId: string,
-  dto: CreateLicenseAssignmentDto,
-) {
-  const license = await this.prisma.softwareLicense.findFirst({
-    where: {
-      id: softwareLicenseId,
-      deletedAt: null,
-    },
-    include: {
-      assignments: {
-        where: {
-          deletedAt: null,
-        },
-      },
-    },
-  });
-
-  if (!license) {
-    throw AppException.notFound('Software license not found');
-  }
-
-  if (license.status !== 'ACTIVE') {
-    throw AppException.conflict(
-      'Software license is not active',
-    );
-  }
-
-  const existingAssignment =
-    await this.prisma.licenseAssignment.findUnique({
+    softwareLicenseId: string,
+    dto: CreateLicenseAssignmentDto,
+  ) {
+    const license = await this.prisma.softwareLicense.findFirst({
       where: {
-        softwareLicenseId_coreUserId: {
-          softwareLicenseId,
-          coreUserId: dto.coreUserId,
-        },
-      },
-    });
-
-  if (existingAssignment && existingAssignment.deletedAt === null) {
-    throw AppException.conflict(
-      'This user is already assigned to the software license',
-    );
-  }
-
-  const assignedCount = license.assignments.length;
-
-  if (assignedCount >= license.licenseQuantity) {
-    throw new AppException(
-      'LICENSE_LIMIT_REACHED',
-      'License assignment limit has been reached',
-      409,
-    );
-  }
-
-  if (existingAssignment) {
-    return this.prisma.licenseAssignment.update({
-      where: {
-        id: existingAssignment.id,
-      },
-      data: {
+        id: softwareLicenseId,
         deletedAt: null,
-        assignedAt: new Date(),
+      },
+      include: {
+        assignments: {
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
+    });
+
+    if (!license) {
+      throw AppException.notFound('Software license not found');
+    }
+
+    if (license.status !== 'ACTIVE') {
+      throw AppException.conflict('Software license is not active');
+    }
+
+    const existingAssignment =
+      await this.prisma.licenseAssignment.findUnique({
+        where: {
+          softwareLicenseId_coreUserId: {
+            softwareLicenseId,
+            coreUserId: dto.coreUserId,
+          },
+        },
+      });
+
+    if (existingAssignment && existingAssignment.deletedAt === null) {
+      throw AppException.conflict(
+        'This user is already assigned to the software license',
+      );
+    }
+
+    const assignedCount = license.assignments.length;
+
+    if (assignedCount >= license.licenseQuantity) {
+      throw AppException.conflict(
+        'License assignment limit has been reached',
+      );
+    }
+
+    if (existingAssignment) {
+      return this.prisma.licenseAssignment.update({
+        where: {
+          id: existingAssignment.id,
+        },
+        data: {
+          deletedAt: null,
+          assignedAt: new Date(),
+        },
+      });
+    }
+
+    return this.prisma.licenseAssignment.create({
+      data: {
+        softwareLicenseId,
+        coreUserId: dto.coreUserId,
       },
     });
   }
-
-  return this.prisma.licenseAssignment.create({
-    data: {
-      softwareLicenseId,
-      coreUserId: dto.coreUserId,
-    },
-  });
-}
 
   async remove(softwareLicenseId: string, assignmentId: string) {
     const assignment = await this.prisma.licenseAssignment.findFirst({
