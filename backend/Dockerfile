@@ -11,10 +11,9 @@ RUN corepack enable pnpm
 ENV DATABASE_URL=postgresql://build:build@localhost:5432/build_only
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY backend/package.json backend/
+COPY backend/ backend/
 RUN pnpm install --frozen-lockfile --filter backend...
 
-COPY backend/ backend/
 RUN pnpm --filter backend exec prisma generate \
  && pnpm --filter backend build
 
