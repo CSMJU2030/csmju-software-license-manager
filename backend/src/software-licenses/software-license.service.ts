@@ -67,11 +67,20 @@ export class SoftwareLicenseService {
         0,
       );
 
-     const { assignments, ...licenseData } = license;
-void assignments;
-
       return {
-        ...licenseData,
+        id: license.id,
+        software_name: license.softwareName,
+        provider: license.provider,
+        license_type: license.licenseType,
+        license_quantity: license.licenseQuantity,
+        start_date: license.startDate,
+        expiry_date: license.expiryDate,
+        cost: license.cost,
+        currency: license.currency,
+        status: license.status,
+        deleted_at: license.deletedAt,
+        created_at: license.createdAt,
+        updated_at: license.updatedAt,
         assigned_count: assignedCount,
         remaining_count: remainingCount,
       };
@@ -103,11 +112,20 @@ void assignments;
       0,
     );
 
-    const { assignments, ...licenseData } = license;
-void assignments;
-
     return {
-      ...licenseData,
+      id: license.id,
+      software_name: license.softwareName,
+      provider: license.provider,
+      license_type: license.licenseType,
+      license_quantity: license.licenseQuantity,
+      start_date: license.startDate,
+      expiry_date: license.expiryDate,
+      cost: license.cost,
+      currency: license.currency,
+      status: license.status,
+      deleted_at: license.deletedAt,
+      created_at: license.createdAt,
+      updated_at: license.updatedAt,
       assigned_count: assignedCount,
       remaining_count: remainingCount,
     };
@@ -119,23 +137,23 @@ void assignments;
     coreUserId: string,
   ) {
     const data = {
-      ...(dto.softwareName !== undefined && {
-        softwareName: dto.softwareName,
+      ...(dto.software_name !== undefined && {
+        softwareName: dto.software_name,
       }),
       ...(dto.provider !== undefined && {
         provider: dto.provider,
       }),
-      ...(dto.licenseType !== undefined && {
-        licenseType: dto.licenseType,
+      ...(dto.license_type !== undefined && {
+        licenseType: dto.license_type,
       }),
-      ...(dto.licenseQuantity !== undefined && {
-        licenseQuantity: dto.licenseQuantity,
+      ...(dto.license_quantity !== undefined && {
+        licenseQuantity: dto.license_quantity,
       }),
-      ...(dto.startDate !== undefined && {
-        startDate: new Date(dto.startDate),
+      ...(dto.start_date !== undefined && {
+        startDate: new Date(dto.start_date),
       }),
-      ...(dto.expiryDate !== undefined && {
-        expiryDate: new Date(dto.expiryDate),
+      ...(dto.expiry_date !== undefined && {
+        expiryDate: new Date(dto.expiry_date),
       }),
       ...(dto.cost !== undefined && {
         cost: dto.cost,
@@ -156,8 +174,26 @@ void assignments;
       throw AppException.notFound('Software license not found');
     }
 
-    // Prevent reducing license quantity below current assigned count
-    if (dto.licenseQuantity !== undefined) {
+    const effectiveStartDate =
+      dto.start_date !== undefined
+        ? new Date(dto.start_date)
+        : existingLicense.startDate;
+
+    const effectiveExpiryDate =
+      dto.expiry_date !== undefined
+        ? new Date(dto.expiry_date)
+        : existingLicense.expiryDate;
+
+    if (
+      effectiveStartDate &&
+      effectiveExpiryDate < effectiveStartDate
+    ) {
+      throw AppException.badRequest(
+        'Expiry date cannot be before start date',
+      );
+    }
+
+    if (dto.license_quantity !== undefined) {
       const assignedCount = await this.prisma.licenseAssignment.count({
         where: {
           softwareLicenseId: id,
@@ -165,18 +201,18 @@ void assignments;
         },
       });
 
-      if (dto.licenseQuantity < assignedCount) {
+      if (dto.license_quantity < assignedCount) {
         throw AppException.conflict(
           'License quantity cannot be less than assigned count',
           {
             assignedCount,
-            requestedQuantity: dto.licenseQuantity,
+            requestedQuantity: dto.license_quantity,
           },
         );
       }
     }
 
-    const updatedLicense = await this.prisma.softwareLicense.update({
+    await this.prisma.softwareLicense.update({
       where: {
         id,
       },
@@ -209,7 +245,7 @@ void assignments;
       }
     }
 
-    return updatedLicense;
+    return this.findOne(id);
   }
 
   async remove(id: string, coreUserId: string) {
@@ -247,10 +283,13 @@ void assignments;
     return license;
   }
 
-  async create(dto: CreateSoftwareLicenseDto, coreUserId: string) {
-    if (dto.startDate) {
-      const startDate = new Date(dto.startDate);
-      const expiryDate = new Date(dto.expiryDate);
+  async create(
+    dto: CreateSoftwareLicenseDto,
+    coreUserId: string,
+  ) {
+    if (dto.start_date) {
+      const startDate = new Date(dto.start_date);
+      const expiryDate = new Date(dto.expiry_date);
 
       if (expiryDate < startDate) {
         throw AppException.badRequest(
@@ -261,12 +300,14 @@ void assignments;
 
     const license = await this.prisma.softwareLicense.create({
       data: {
-        softwareName: dto.softwareName,
+        softwareName: dto.software_name,
         provider: dto.provider,
-        licenseType: dto.licenseType,
-        licenseQuantity: dto.licenseQuantity,
-        startDate: dto.startDate ? new Date(dto.startDate) : undefined,
-        expiryDate: new Date(dto.expiryDate),
+        licenseType: dto.license_type,
+        licenseQuantity: dto.license_quantity,
+        startDate: dto.start_date
+          ? new Date(dto.start_date)
+          : undefined,
+        expiryDate: new Date(dto.expiry_date),
         cost: dto.cost,
         currency: dto.currency ?? 'THB',
       },
@@ -279,6 +320,6 @@ void assignments;
       newValue: JSON.stringify(license),
     });
 
-    return license;
+    return this.findOne(license.id);
   }
 }

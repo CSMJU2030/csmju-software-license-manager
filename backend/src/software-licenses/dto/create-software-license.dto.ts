@@ -1,4 +1,8 @@
 import {
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
+import {
   IsDateString,
   IsInt,
   IsOptional,
@@ -7,33 +11,71 @@ import {
 } from 'class-validator';
 
 export class CreateSoftwareLicenseDto {
+  @ApiProperty({
+    description: 'ชื่อซอฟต์แวร์',
+    example: 'Microsoft Office 365',
+  })
   @IsString()
-  softwareName!: string;
+  software_name!: string;
 
+  @ApiPropertyOptional({
+    description: 'ผู้ให้บริการซอฟต์แวร์',
+    example: 'Microsoft',
+  })
   @IsOptional()
   @IsString()
   provider?: string;
 
+  @ApiPropertyOptional({
+    description: 'ประเภทใบอนุญาต',
+    example: 'Subscription',
+  })
   @IsOptional()
   @IsString()
-  licenseType?: string;
+  license_type?: string;
 
+  @ApiProperty({
+    description: 'จำนวนสิทธิ์ใช้งาน',
+    type: 'integer',
+    format: 'int32',
+    minimum: 1,
+    example: 10,
+  })
   @IsInt()
   @Min(1)
-  licenseQuantity!: number;
+  license_quantity!: number;
 
+  @ApiPropertyOptional({
+    description: 'วันที่เริ่มต้นใบอนุญาตในรูปแบบ ISO 8601',
+    example: '2026-10-05T00:00:00+07:00',
+  })
   @IsOptional()
   @IsDateString()
-  startDate?: string;
+  start_date?: string;
 
+  @ApiProperty({
+    description: 'วันหมดอายุใบอนุญาตในรูปแบบ ISO 8601',
+    example: '2027-10-05T23:59:59+07:00',
+  })
   @IsDateString()
-  expiryDate!: string;
+  expiry_date!: string;
 
+  @ApiPropertyOptional({
+    description: 'ค่าใช้จ่ายเป็นจำนวนเต็ม',
+    type: 'integer',
+    format: 'int32',
+    minimum: 0,
+    example: 12000,
+  })
   @IsOptional()
   @IsInt()
   @Min(0)
   cost?: number;
 
+  @ApiPropertyOptional({
+    description: 'สกุลเงิน',
+    example: 'THB',
+  })
   @IsOptional()
   @IsString()
   currency?: string;

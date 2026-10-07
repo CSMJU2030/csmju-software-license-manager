@@ -52,7 +52,7 @@ export class LicenseAssignmentService {
         where: {
           softwareLicenseId_coreUserId: {
             softwareLicenseId,
-            coreUserId: dto.coreUserId,
+            coreUserId: dto.core_user_id,
           },
         },
       });
@@ -86,7 +86,7 @@ export class LicenseAssignmentService {
     return this.prisma.licenseAssignment.create({
       data: {
         softwareLicenseId,
-        coreUserId: dto.coreUserId,
+        coreUserId: dto.core_user_id,
       },
     });
   }
