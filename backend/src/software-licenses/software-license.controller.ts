@@ -8,12 +8,18 @@ import {
   Param,
   Body,
 } from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { CoreHubIdentity } from '../auth/core-hub-identity';
 import { Permission } from '../auth/permissions';
 import { CreateSoftwareLicenseDto } from './dto/create-software-license.dto';
 import { UpdateSoftwareLicenseDto } from './dto/update-software-license.dto';
+import { SoftwareLicenseListResponseDto } from './dto/software-license-list-response.dto';
+import { DeleteSoftwareLicenseResponseDto } from './dto/delete-software-license-response.dto';
 import { SoftwareLicenseService } from './software-license.service';
 import { SoftwareLicenseStatus } from '../../generated/prisma/client';
 
@@ -24,45 +30,64 @@ export class SoftwareLicenseController {
   ) {}
 
   @Get()
-@RequirePermissions(Permission.SOFTWARE_LICENSE_READ)
-async findAll(
-  @Query('software_name') softwareName?: string,
-  @Query('provider') provider?: string,
-  @Query('status') status?: SoftwareLicenseStatus,
-  @Query('page') page = '1',
-  @Query('limit') limit = '10',
-) {
-  const licenses = await this.softwareLicenseService.findAll(
-    softwareName,
-    provider,
-    status,
-  );
+  @ApiOkResponse({
+    description: 'รายการ Software License',
+    type: SoftwareLicenseListResponseDto,
+  })
+  @RequirePermissions(Permission.SOFTWARE_LICENSE_READ)
+  async findAll(
+    @Query('software_name') softwareName?: string,
+    @Query('provider') provider?: string,
+    @Query('status') status?: SoftwareLicenseStatus,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+  ) {
+    const licenses = await this.softwareLicenseService.findAll(
+      softwareName,
+      provider,
+      status,
+    );
 
-  const currentPage = Math.max(Number(page) || 1, 1);
-  const currentLimit = Math.min(
-    Math.max(Number(limit) || 10, 1),
-    100,
-  );
+    const currentPage = Math.max(Number(page) || 1, 1);
+    const currentLimit = Math.min(
+      Math.max(Number(limit) || 10, 1),
+      100,
+    );
 
-  const start = (currentPage - 1) * currentLimit;
-  const paginatedLicenses = licenses.slice(
-    start,
-    start + currentLimit,
-  );
+    const start = (currentPage - 1) * currentLimit;
+    const paginatedLicenses = licenses.slice(
+      start,
+      start + currentLimit,
+    );
 
-  return {
-    success: true,
-    data: paginatedLicenses,
-    meta: {
-      page: currentPage,
-      limit: currentLimit,
-      total: licenses.length,
-      totalPages: Math.ceil(licenses.length / currentLimit),
-    },
-  };
-}
+    return {
+      success: true,
+      data: paginatedLicenses,
+      meta: {
+        page: currentPage,
+        limit: currentLimit,
+        total: licenses.length,
+        total_pages: Math.ceil(licenses.length / currentLimit),
+      },
+    };
+  }
 
   @Get(':id')
+  @ApiOkResponse({
+    description: 'รายละเอียด Software License',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+        data: {
+          $ref: '#/components/schemas/SoftwareLicenseResponseDto',
+        },
+      },
+    },
+  })
   @RequirePermissions(Permission.SOFTWARE_LICENSE_READ)
   async findOne(@Param('id') id: string) {
     const license = await this.softwareLicenseService.findOne(id);
@@ -74,6 +99,21 @@ async findAll(
   }
 
   @Patch(':id')
+  @ApiOkResponse({
+    description: 'แก้ไข Software License สำเร็จ',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+        data: {
+          $ref: '#/components/schemas/SoftwareLicenseResponseDto',
+        },
+      },
+    },
+  })
   @RequirePermissions(Permission.SOFTWARE_LICENSE_UPDATE)
   async update(
     @Param('id') id: string,
@@ -93,6 +133,10 @@ async findAll(
   }
 
   @Delete(':id')
+  @ApiOkResponse({
+    description: 'ลบ Software License สำเร็จ',
+    type: DeleteSoftwareLicenseResponseDto,
+  })
   @RequirePermissions(Permission.SOFTWARE_LICENSE_DELETE)
   async remove(
     @Param('id') id: string,
@@ -113,6 +157,21 @@ async findAll(
   }
 
   @Post()
+  @ApiCreatedResponse({
+    description: 'สร้าง Software License สำเร็จ',
+    schema: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: true,
+        },
+        data: {
+          $ref: '#/components/schemas/SoftwareLicenseResponseDto',
+        },
+      },
+    },
+  })
   @RequirePermissions(Permission.SOFTWARE_LICENSE_CREATE)
   async create(
     @Body() dto: CreateSoftwareLicenseDto,
