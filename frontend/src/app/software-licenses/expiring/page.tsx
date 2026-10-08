@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { redirectToLogin } from "@/lib/auth";
 
 type ExpiringLicense = {
   id: string;
@@ -77,6 +78,11 @@ export default function ExpiringLicensesPage() {
           signal,
         },
       );
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
 
       const result = (await response.json()) as ExpiringResponse;
 
