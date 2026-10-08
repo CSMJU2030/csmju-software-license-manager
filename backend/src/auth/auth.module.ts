@@ -1,5 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { AuthEventsLogger } from './auth-events.logger';
+import { SsoLogoutController } from './sso-logout.controller';
+import { SsoLoginController } from './sso-login.controller';
 import { CoreHubTokenVerifier } from './core-hub-token.verifier';
 import { JwksService } from './jwks.service';
 import { MeController } from './me.controller';
@@ -13,7 +15,7 @@ import { PermissionsGuard } from './guards/permissions.guard';
  */
 @Global()
 @Module({
-  controllers: [MeController, SsoCallbackController],
+  controllers: [MeController, SsoLoginController, SsoCallbackController, SsoLogoutController],
   providers: [AuthEventsLogger, JwksService, CoreHubTokenVerifier, CoreHubJwtGuard, PermissionsGuard],
   exports: [AuthEventsLogger, JwksService, CoreHubTokenVerifier, CoreHubJwtGuard, PermissionsGuard],
 })

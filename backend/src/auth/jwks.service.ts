@@ -31,11 +31,12 @@ export class JwksService {
   ) {}
 
   private get jwksUrl(): string {
-    return this.config.get<string>(
-      "coreHub.jwksUrl",
-      "http://localhost:3000/api/v1/.well-known/jwks.json",
-    );
-  }
+  return (
+    this.config.get<string>("CORE_HUB_JWKS_URL") ??
+    this.config.get<string>("coreHub.jwksUrl") ??
+    "http://localhost:3000/api/v1/.well-known/jwks.json"
+  );
+}
 
   private get cacheTtlMs(): number {
     return this.config.get<number>("coreHub.jwksCacheTtlMs", 600_000);
