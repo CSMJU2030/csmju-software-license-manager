@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { redirectToLogin } from "@/lib/auth";
 
 type DashboardData = {
   total_software: number;
@@ -83,6 +84,11 @@ export default function DashboardPage() {
         },
       );
 
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
+
       const result = (await response.json()) as DashboardResponse;
 
       if (!response.ok || !result.success || !result.data) {
@@ -109,7 +115,7 @@ export default function DashboardPage() {
     }
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     const controller = new AbortController();
 
     const timer = window.setTimeout(() => {

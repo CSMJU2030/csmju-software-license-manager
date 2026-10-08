@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { redirectToLogin } from "@/lib/auth";
 
 type LicenseStatus = "ACTIVE" | "EXPIRING" | "EXPIRED" | "SUSPENDED";
 
@@ -169,13 +170,6 @@ function getStatusClass(status: LicenseStatus) {
     case "SUSPENDED":
       return "bg-surface-container-high text-on-surface-variant";
   }
-}
-
-function redirectToLogin() {
-  const next = `${window.location.pathname}${window.location.search}`;
-  const target = new URL("/auth/login", window.location.origin);
-  target.searchParams.set("next", next || "/");
-  window.location.assign(target.toString());
 }
 
 export default function SoftwareLicensesPage() {
