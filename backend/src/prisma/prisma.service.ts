@@ -17,6 +17,7 @@ export class PrismaService
   constructor() {
     const adapter = new PrismaPg({
       connectionString: process.env.DATABASE_URL,
+      max: Number(process.env.DATABASE_POOL_MAX) || 5,
     });
 
     super({ adapter });

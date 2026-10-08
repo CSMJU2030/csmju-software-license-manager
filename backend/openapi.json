@@ -1,0 +1,690 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "operationId": "MeController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/api/auth/callback": {
+      "get": {
+        "operationId": "SsoCallbackController_callback",
+        "parameters": [
+          {
+            "name": "accept",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SsoCallback"
+        ]
+      }
+    },
+    "/api/v1/software-license-dashboard": {
+      "get": {
+        "operationId": "SoftwareLicenseDashboardController_getDashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SoftwareLicenseDashboard"
+        ]
+      }
+    },
+    "/api/v1/software-licenses/expiring": {
+      "get": {
+        "operationId": "SoftwareLicenseExpiringController_findExpiring",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SoftwareLicenseExpiring"
+        ]
+      }
+    },
+    "/api/v1/software-licenses": {
+      "get": {
+        "operationId": "SoftwareLicenseController_findAll",
+        "parameters": [
+          {
+            "name": "software_name",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "รายการ Software License",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoftwareLicenseListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SoftwareLicense"
+        ]
+      },
+      "post": {
+        "operationId": "SoftwareLicenseController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSoftwareLicenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "สร้าง Software License สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SoftwareLicenseResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SoftwareLicense"
+        ]
+      }
+    },
+    "/api/v1/software-licenses/{id}": {
+      "get": {
+        "operationId": "SoftwareLicenseController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "รายละเอียด Software License",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SoftwareLicenseResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SoftwareLicense"
+        ]
+      },
+      "patch": {
+        "operationId": "SoftwareLicenseController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSoftwareLicenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "แก้ไข Software License สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SoftwareLicenseResponseDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SoftwareLicense"
+        ]
+      },
+      "delete": {
+        "operationId": "SoftwareLicenseController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ลบ Software License สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteSoftwareLicenseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SoftwareLicense"
+        ]
+      }
+    },
+    "/api/v1/software-licenses/{softwareLicenseId}/assignments": {
+      "get": {
+        "operationId": "LicenseAssignmentController_findAll",
+        "parameters": [
+          {
+            "name": "softwareLicenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LicenseAssignment"
+        ]
+      },
+      "post": {
+        "operationId": "LicenseAssignmentController_create",
+        "parameters": [
+          {
+            "name": "softwareLicenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLicenseAssignmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LicenseAssignment"
+        ]
+      }
+    },
+    "/api/v1/software-licenses/{softwareLicenseId}/assignments/{assignmentId}": {
+      "delete": {
+        "operationId": "LicenseAssignmentController_remove",
+        "parameters": [
+          {
+            "name": "softwareLicenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LicenseAssignment"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "CSMJU Software License Manager API",
+    "description": "Software License Manager API",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "SoftwareLicenseResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "0ab9ce14-29ae-45d1-a0ed-a0b9d5f851a3"
+          },
+          "software_name": {
+            "type": "string",
+            "example": "Microsoft Office 365"
+          },
+          "provider": {
+            "type": "object",
+            "example": "Microsoft",
+            "nullable": true
+          },
+          "license_type": {
+            "type": "object",
+            "example": "Subscription",
+            "nullable": true
+          },
+          "license_quantity": {
+            "type": "integer",
+            "example": 10,
+            "minimum": 1,
+            "format": "int32"
+          },
+          "start_date": {
+            "type": "object",
+            "example": "2026-10-05T00:00:00.000Z",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "expiry_date": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2027-10-05T23:59:59.000Z"
+          },
+          "cost": {
+            "type": "integer",
+            "example": 12000,
+            "minimum": 0,
+            "format": "int32",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string",
+            "example": "THB"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "EXPIRING",
+              "EXPIRED",
+              "SUSPENDED"
+            ],
+            "example": "ACTIVE"
+          },
+          "deleted_at": {
+            "type": "object",
+            "example": null,
+            "nullable": true,
+            "format": "date-time"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-10-05T10:00:00.000Z"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-10-05T10:00:00.000Z"
+          },
+          "assigned_count": {
+            "type": "integer",
+            "example": 3,
+            "minimum": 0,
+            "format": "int32"
+          },
+          "remaining_count": {
+            "type": "integer",
+            "example": 7,
+            "minimum": 0,
+            "format": "int32"
+          }
+        },
+        "required": [
+          "id",
+          "software_name",
+          "license_quantity",
+          "expiry_date",
+          "currency",
+          "status",
+          "created_at",
+          "updated_at",
+          "assigned_count",
+          "remaining_count"
+        ]
+      },
+      "SoftwareLicenseListMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "example": 1,
+            "minimum": 1
+          },
+          "limit": {
+            "type": "integer",
+            "example": 10,
+            "minimum": 1
+          },
+          "total": {
+            "type": "integer",
+            "example": 25,
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "example": 3,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "total_pages"
+        ]
+      },
+      "SoftwareLicenseListResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SoftwareLicenseResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/SoftwareLicenseListMetaDto"
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "meta"
+        ]
+      },
+      "UpdateSoftwareLicenseDto": {
+        "type": "object",
+        "properties": {
+          "software_name": {
+            "type": "string",
+            "description": "ชื่อซอฟต์แวร์",
+            "example": "Microsoft Office 365"
+          },
+          "provider": {
+            "type": "string",
+            "description": "ผู้ให้บริการซอฟต์แวร์",
+            "example": "Microsoft"
+          },
+          "license_type": {
+            "type": "string",
+            "description": "ประเภทใบอนุญาต",
+            "example": "Subscription"
+          },
+          "license_quantity": {
+            "type": "integer",
+            "description": "จำนวนสิทธิ์ใช้งาน",
+            "format": "int32",
+            "minimum": 1,
+            "example": 10
+          },
+          "start_date": {
+            "type": "string",
+            "description": "วันที่เริ่มต้นใบอนุญาตในรูปแบบ ISO 8601",
+            "example": "2026-10-05T00:00:00+07:00"
+          },
+          "expiry_date": {
+            "type": "string",
+            "description": "วันหมดอายุใบอนุญาตในรูปแบบ ISO 8601",
+            "example": "2027-10-05T23:59:59+07:00"
+          },
+          "cost": {
+            "type": "integer",
+            "description": "ค่าใช้จ่ายเป็นจำนวนเต็ม",
+            "format": "int32",
+            "minimum": 0,
+            "example": 12000
+          },
+          "currency": {
+            "type": "string",
+            "description": "สกุลเงิน",
+            "example": "THB"
+          }
+        }
+      },
+      "DeleteSoftwareLicenseDataDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "0ab9ce14-29ae-45d1-a0ed-a0b9d5f851a3"
+          },
+          "deleted": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "deleted"
+        ]
+      },
+      "DeleteSoftwareLicenseResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/DeleteSoftwareLicenseDataDto"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "CreateSoftwareLicenseDto": {
+        "type": "object",
+        "properties": {
+          "software_name": {
+            "type": "string",
+            "description": "ชื่อซอฟต์แวร์",
+            "example": "Microsoft Office 365"
+          },
+          "provider": {
+            "type": "string",
+            "description": "ผู้ให้บริการซอฟต์แวร์",
+            "example": "Microsoft"
+          },
+          "license_type": {
+            "type": "string",
+            "description": "ประเภทใบอนุญาต",
+            "example": "Subscription"
+          },
+          "license_quantity": {
+            "type": "integer",
+            "description": "จำนวนสิทธิ์ใช้งาน",
+            "format": "int32",
+            "minimum": 1,
+            "example": 10
+          },
+          "start_date": {
+            "type": "string",
+            "description": "วันที่เริ่มต้นใบอนุญาตในรูปแบบ ISO 8601",
+            "example": "2026-10-05T00:00:00+07:00"
+          },
+          "expiry_date": {
+            "type": "string",
+            "description": "วันหมดอายุใบอนุญาตในรูปแบบ ISO 8601",
+            "example": "2027-10-05T23:59:59+07:00"
+          },
+          "cost": {
+            "type": "integer",
+            "description": "ค่าใช้จ่ายเป็นจำนวนเต็ม",
+            "format": "int32",
+            "minimum": 0,
+            "example": 12000
+          },
+          "currency": {
+            "type": "string",
+            "description": "สกุลเงิน",
+            "example": "THB"
+          }
+        },
+        "required": [
+          "software_name",
+          "license_quantity",
+          "expiry_date"
+        ]
+      },
+      "CreateLicenseAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "core_user_id": {
+            "type": "string",
+            "description": "รหัสผู้ใช้จาก Core Hub",
+            "example": "user-001"
+          }
+        },
+        "required": [
+          "core_user_id"
+        ]
+      }
+    }
+  }
+}

@@ -28,8 +28,13 @@ export class AppException extends HttpException {
   }
 
   static badRequest(message: string, details?: unknown): AppException {
-    return new AppException(ErrorCode.BAD_REQUEST, message, HttpStatus.BAD_REQUEST, details);
-  }
+  return new AppException(
+    ErrorCode.VALIDATION_ERROR,
+    message,
+    HttpStatus.BAD_REQUEST,
+    details,
+  );
+}
 
   static unauthorized(message = 'Authentication is required'): AppException {
     return new AppException(ErrorCode.UNAUTHORIZED, message, HttpStatus.UNAUTHORIZED);
