@@ -1,15 +1,15 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+  exclude: ['auth/login', 'auth/callback', 'auth/logout'],
+});
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
@@ -29,12 +29,6 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-
-  writeFileSync(
-    join(process.cwd(), 'openapi.json'),
-    JSON.stringify(document, null, 2),
-    'utf-8',
-  );
 
   SwaggerModule.setup('docs', app, document);
 

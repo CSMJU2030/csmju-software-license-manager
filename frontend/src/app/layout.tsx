@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Plus_Jakarta_Sans, Noto_Sans_Thai } from "next/font/google";
 import { CsmjuAppShell, type NavItem } from "@/csmju";
 import "./globals.css";
@@ -40,6 +41,8 @@ const NAV: NavItem[] = [
 
 const CORE_HUB_WEB_URL = process.env.CORE_HUB_WEB_URL;
 
+type RootLayoutProps = Readonly<{ children: ReactNode }>;
+
 export const metadata: Metadata = {
   title: {
     template: `%s · ${DISPLAY_NAME} · CSMJU`,
@@ -49,7 +52,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: LayoutProps<"/">) {
+}: RootLayoutProps) {
   return (
     <html
       lang="th"

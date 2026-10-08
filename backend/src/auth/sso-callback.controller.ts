@@ -1,6 +1,6 @@
-import { Controller, Get, Headers, HttpStatus, Query, Res } from '@nestjs/common';
+import { Controller, Get, Headers, HttpStatus, Query, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 import { AppException } from '../common/errors';
 import { AuthEventsLogger } from './auth-events.logger';
@@ -9,7 +9,14 @@ import { CoreHubTokenVerifier } from './core-hub-token.verifier';
 import { Public } from './decorators/public.decorator';
 import { SsoCallbackQueryDto } from './dto/sso-callback.dto';
 import { mapCoreRoleToSubsystemRole } from './role-mapping';
-import { buildSsoCookie } from './sso-session';
+import {
+  buildSsoCookie,
+  deleteSsoStateCookie,
+  parseSsoStateCookie,
+  readCookie,
+  SSO_STATE_COOKIE_NAME,
+  timingSafeEqual,
+} from './sso-session';
 
 /**
  * Central SSO callback - the destination Core Hub has on file in the Subsystem
@@ -33,9 +40,28 @@ export class SsoCallbackController {
   @Get('callback')
   async callback(
     @Query() query: SsoCallbackQueryDto,
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @Headers('accept') accept?: string,
   ) {
+    const secure = this.config.get<string>('nodeEnv') === 'production';
+    const stateCookie = readCookie(request.headers.cookie, SSO_STATE_COOKIE_NAME);
+
+    if (!query.state || !stateCookie) {
+      this.authEvents.jwtRejected({
+        reason: TokenRejectionReason.MALFORMED_TOKEN,
+        path: '/auth/callback',
+      });
+      throw AppException.unauthorized('Missing SSO state');
+    }
+
+    const parsedStateCookie = parseSsoStateCookie(stateCookie);
+
+    if (!parsedStateCookie || !timingSafeEqual(parsedStateCookie.state, query.state)) {
+      response.setHeader('Set-Cookie', [deleteSsoStateCookie(secure)]);
+      throw AppException.unauthorized('SSO state mismatch');
+    }
+
     let payload;
 
     try {
@@ -65,15 +91,16 @@ export class SsoCallbackController {
     }
 
     const expiresInSec = this.remainingLifetimeSec(payload.exp);
+    const redirectPath = this.normaliseNextPath(parsedStateCookie.next);
 
-    response.setHeader(
-      'Set-Cookie',
+    response.setHeader('Set-Cookie', [
       buildSsoCookie(
         query.access_token,
         expiresInSec,
-        this.config.get<string>('nodeEnv') === 'production',
+        secure,
       ),
-    );
+      deleteSsoStateCookie(secure),
+    ]);
 
     this.authEvents.jwtVerified({
       sub: payload.sub,
@@ -81,13 +108,8 @@ export class SsoCallbackController {
       subsystemRole,
     });
 
-    // A browser arriving from Core Hub asks for HTML: send it on to the
-    // frontend, which shares this origin (it proxies /auth and /api here).
-    // API clients and the conformance runner still get the JSON below.
-    // Only set status and Location: with passthrough Nest still writes the
-    // response afterwards, and response.redirect() would already have sent it.
     if (accept?.includes('text/html')) {
-      response.status(HttpStatus.FOUND).location('/');
+      response.status(HttpStatus.FOUND).location(redirectPath);
       return;
     }
 
@@ -110,5 +132,23 @@ export class SsoCallbackController {
     }
 
     return Math.max(0, exp - Math.floor(Date.now() / 1000));
+  }
+
+  private normaliseNextPath(next: string | null | undefined): string {
+    const candidate = next ?? '/';
+
+    if (!candidate.startsWith('/')) {
+      return '/';
+    }
+
+    if (candidate.startsWith('//') || candidate.includes('\\')) {
+      return '/';
+    }
+
+    if (candidate === '/auth' || candidate.startsWith('/auth/')) {
+      return '/';
+    }
+
+    return candidate;
   }
 }
