@@ -29,26 +29,110 @@
         ]
       }
     },
-    "/api/auth/callback": {
+    "/auth/login": {
       "get": {
-        "operationId": "SsoCallbackController_callback",
+        "operationId": "SsoLoginController_login",
         "parameters": [
           {
-            "name": "accept",
-            "required": true,
-            "in": "header",
+            "name": "next",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "string"
             }
           }
         ],
         "responses": {
+          "302": {
+            "description": "Redirect to the Core Hub authorization page"
+          }
+        },
+        "tags": [
+          "SsoLogin"
+        ]
+      }
+    },
+    "/auth/callback": {
+      "get": {
+        "operationId": "SsoCallbackController_callback",
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Bearer",
+                "bearer"
+              ]
+            }
+          },
+          {
+            "name": "expires_in",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 32
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to the requested subsystem page after successful browser authentication"
+          },
           "200": {
-            "description": ""
+            "description": "Verified Core Hub identity and subsystem role"
+          },
+          "401": {
+            "description": "Missing or invalid SSO state or token"
+          },
+          "403": {
+            "description": "Core Hub role is not allowed in this subsystem"
           }
         },
         "tags": [
           "SsoCallback"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "SsoLogoutController_logout",
+        "parameters": [],
+        "responses": {
+          "303": {
+            "description": "Clear the subsystem cookie and redirect to Core Hub logout"
+          }
+        },
+        "tags": [
+          "SsoLogout"
         ]
       }
     },
