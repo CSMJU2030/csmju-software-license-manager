@@ -45,11 +45,27 @@ describe('PermissionsGuard - authorization tests', () => {
     ).toBe(true);
   });
 
-  it('allows LICENSE_EDITOR to create a software license', () => {
+  it('allows VIEWER to read dashboard information', () => {
+    requirePermissions(Permission.SOFTWARE_LICENSE_DASHBOARD_READ);
+
+    expect(
+      guard.canActivate(contextFor(identity(SubsystemRole.VIEWER))),
+    ).toBe(true);
+  });
+
+  it('allows VIEWER to read license assignments', () => {
+    requirePermissions(Permission.SOFTWARE_LICENSE_ASSIGNMENT_READ);
+
+    expect(
+      guard.canActivate(contextFor(identity(SubsystemRole.VIEWER))),
+    ).toBe(true);
+  });
+
+  it('allows LICENSE_ADMIN to create a software license', () => {
     requirePermissions(Permission.SOFTWARE_LICENSE_CREATE);
 
     expect(
-      guard.canActivate(contextFor(identity(SubsystemRole.LICENSE_EDITOR))),
+      guard.canActivate(contextFor(identity(SubsystemRole.LICENSE_ADMIN))),
     ).toBe(true);
   });
 
@@ -61,14 +77,6 @@ describe('PermissionsGuard - authorization tests', () => {
     ).toBe(true);
   });
 
-  it('denies VIEWER from reading dashboard information with 403', () => {
-    requirePermissions(Permission.SOFTWARE_LICENSE_DASHBOARD_READ);
-
-    expect(() =>
-      guard.canActivate(contextFor(identity(SubsystemRole.VIEWER))),
-    ).toThrow(expect.objectContaining({ status: 403 }));
-  });
-
   it('denies VIEWER from creating a software license with 403', () => {
     requirePermissions(Permission.SOFTWARE_LICENSE_CREATE);
 
@@ -77,21 +85,30 @@ describe('PermissionsGuard - authorization tests', () => {
     ).toThrow(expect.objectContaining({ status: 403 }));
   });
 
-  it('denies LICENSE_EDITOR from deleting a software license with 403', () => {
-    requirePermissions(Permission.SOFTWARE_LICENSE_DELETE);
+  it.each([
+    Permission.SOFTWARE_LICENSE_CREATE,
+    Permission.SOFTWARE_LICENSE_UPDATE,
+    Permission.SOFTWARE_LICENSE_DELETE,
+    Permission.SOFTWARE_LICENSE_ASSIGNMENT_CREATE,
+    Permission.SOFTWARE_LICENSE_ASSIGNMENT_DELETE,
+  ])('denies VIEWER from %s with 403', (permission) => {
+    requirePermissions(permission);
 
     expect(() =>
-      guard.canActivate(contextFor(identity(SubsystemRole.LICENSE_EDITOR))),
+      guard.canActivate(contextFor(identity(SubsystemRole.VIEWER))),
     ).toThrow(expect.objectContaining({ status: 403 }));
   });
 
-  it('allows LICENSE_ADMIN to delete a software license', () => {
-    requirePermissions(Permission.SOFTWARE_LICENSE_DELETE);
+  it.each(Object.values(Permission))(
+    'allows LICENSE_ADMIN to access %s',
+    (permission) => {
+      requirePermissions(permission);
 
-    expect(
-      guard.canActivate(contextFor(identity(SubsystemRole.LICENSE_ADMIN))),
-    ).toBe(true);
-  });
+      expect(
+        guard.canActivate(contextFor(identity(SubsystemRole.LICENSE_ADMIN))),
+      ).toBe(true);
+    },
+  );
 
   it('passes when the role holds any one of the required permissions', () => {
     requirePermissions(

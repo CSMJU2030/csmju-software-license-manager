@@ -5,7 +5,8 @@ describe('Core role -> subsystem role mapping', () => {
   it.each([
     ['student', SubsystemRole.VIEWER],
     ['alumni', SubsystemRole.VIEWER],
-    ['staff', SubsystemRole.LICENSE_EDITOR],
+    ['staff', SubsystemRole.VIEWER],
+    ['lecturer', SubsystemRole.VIEWER],
     ['admin', SubsystemRole.LICENSE_ADMIN],
   ])('maps core role "%s" to %s', (coreRole, expected) => {
     expect(mapCoreRoleToSubsystemRole(coreRole)).toBe(expected);
@@ -13,7 +14,7 @@ describe('Core role -> subsystem role mapping', () => {
 
   it('is case and whitespace tolerant', () => {
     expect(mapCoreRoleToSubsystemRole('  STAFF ')).toBe(
-      SubsystemRole.LICENSE_EDITOR,
+      SubsystemRole.VIEWER,
     );
 
     expect(mapCoreRoleToSubsystemRole(' ADMIN ')).toBe(
@@ -23,7 +24,6 @@ describe('Core role -> subsystem role mapping', () => {
 
   it('returns null for a Core Hub role this subsystem does not know', () => {
     expect(mapCoreRoleToSubsystemRole('finance-officer')).toBeNull();
-    expect(mapCoreRoleToSubsystemRole('lecturer')).toBeNull();
     expect(mapCoreRoleToSubsystemRole('guest')).toBeNull();
   });
 

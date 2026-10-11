@@ -20,8 +20,8 @@ probes:
   invalid_id: /api/v1/software-licenses/not-a-uuid
   create:
     path: /api/v1/software-licenses
-    allowed_role: staff
-    denied_role: student
+    allowed_role: admin
+    denied_role: staff
     invalid_body:
       softwareName: ""
       licenseQuantity: 0
@@ -44,7 +44,8 @@ repo: github.com/CSMJU2030/csmju-software-license-manager
 
 default_role_mapping:
   admin: LICENSE_ADMIN
-  staff: LICENSE_EDITOR
+  staff: VIEWER
+  lecturer: VIEWER
   alumni: VIEWER
   student: VIEWER
 

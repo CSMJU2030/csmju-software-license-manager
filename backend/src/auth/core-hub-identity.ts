@@ -1,7 +1,6 @@
 /** Subsystem-local roles. Deliberately NOT identical to Core Hub role names. */
 export enum SubsystemRole {
   VIEWER = 'VIEWER',
-  LICENSE_EDITOR = 'LICENSE_EDITOR',
   LICENSE_ADMIN = 'LICENSE_ADMIN',
 }
 
