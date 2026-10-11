@@ -47,7 +47,15 @@ export class SsoCallbackController {
     const secure = this.config.get<string>('nodeEnv') === 'production';
     const stateCookie = readCookie(request.headers.cookie, SSO_STATE_COOKIE_NAME);
 
-    if (!query.state || !stateCookie) {
+    response.setHeader('Cache-Control', 'no-store');
+    response.setHeader('Referrer-Policy', 'no-referrer');
+
+    if (!query.state) {
+      response.status(HttpStatus.FOUND).location('/auth/login');
+      return;
+    }
+
+    if (!stateCookie) {
       this.authEvents.jwtRejected({
         reason: TokenRejectionReason.MALFORMED_TOKEN,
         path: '/auth/callback',
