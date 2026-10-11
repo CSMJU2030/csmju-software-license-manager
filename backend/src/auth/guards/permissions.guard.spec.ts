@@ -53,6 +53,22 @@ describe('PermissionsGuard - authorization tests', () => {
     ).toBe(true);
   });
 
+  it('allows VIEWER to read expiring-license information', () => {
+    requirePermissions(Permission.SOFTWARE_LICENSE_EXPIRING_READ);
+
+    expect(
+      guard.canActivate(contextFor(identity(SubsystemRole.VIEWER))),
+    ).toBe(true);
+  });
+
+  it('denies VIEWER from reading dashboard information with 403', () => {
+    requirePermissions(Permission.SOFTWARE_LICENSE_DASHBOARD_READ);
+
+    expect(() =>
+      guard.canActivate(contextFor(identity(SubsystemRole.VIEWER))),
+    ).toThrow(expect.objectContaining({ status: 403 }));
+  });
+
   it('denies VIEWER from creating a software license with 403', () => {
     requirePermissions(Permission.SOFTWARE_LICENSE_CREATE);
 

@@ -27,12 +27,15 @@ describe('Subsystem permission model', () => {
       ).toBe(false);
     });
 
-    it('cannot read dashboard or expiring-license information', () => {
-      expect(
-        can(role, Permission.SOFTWARE_LICENSE_DASHBOARD_READ),
-      ).toBe(false);
+    it('can read expiring-license information', () => {
       expect(
         can(role, Permission.SOFTWARE_LICENSE_EXPIRING_READ),
+      ).toBe(true);
+    });
+
+    it('cannot read dashboard information', () => {
+      expect(
+        can(role, Permission.SOFTWARE_LICENSE_DASHBOARD_READ),
       ).toBe(false);
     });
   });

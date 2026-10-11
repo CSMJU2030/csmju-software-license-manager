@@ -19,6 +19,7 @@ export enum Permission {
  */
 const VIEWER_PERMISSIONS: Permission[] = [
   Permission.SOFTWARE_LICENSE_READ,
+  Permission.SOFTWARE_LICENSE_EXPIRING_READ,
 ];
 
 /**

@@ -69,10 +69,12 @@ export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState(false);
 
   const loadDashboard = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
+    setForbidden(false);
 
     try {
       const response = await fetch(
@@ -86,6 +88,11 @@ export default function DashboardPage() {
 
       if (response.status === 401) {
         redirectToLogin();
+        return;
+      }
+
+      if (response.status === 403) {
+        setForbidden(true);
         return;
       }
 
@@ -157,7 +164,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (error) {
+  if (error || forbidden) {
     return (
       <section className="space-y-6" aria-live="assertive">
         <div>
@@ -172,20 +179,31 @@ export default function DashboardPage() {
 
         <div className="rounded-2xl border border-error/30 bg-error-container p-6">
           <h2 className="text-headline-md font-display text-on-error-container">
-            ไม่สามารถโหลดข้อมูลได้
+            {forbidden ? "ไม่มีสิทธิ์ดูภาพรวม" : "ไม่สามารถโหลดข้อมูลได้"}
           </h2>
 
           <p className="mt-2 text-body-md text-on-error-container">
-            {error}
+            {forbidden
+              ? "ข้อมูลภาพรวมและมูลค่ารวมแสดงเฉพาะผู้ดูแลระบบ คุณยังเข้าดูรายการ Software License ได้"
+              : error}
           </p>
 
-          <button
-            type="button"
-            onClick={() => void loadDashboard()}
-            className="mt-5 rounded-lg bg-error px-5 py-3 text-label-md text-white transition-opacity hover:opacity-90"
-          >
-            ลองอีกครั้ง
-          </button>
+          {forbidden ? (
+            <a
+              href="/software-licenses"
+              className="mt-5 inline-flex rounded-lg bg-primary px-5 py-3 text-label-md text-white transition-opacity hover:opacity-90"
+            >
+              ไปที่รายการ Software License
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void loadDashboard()}
+              className="mt-5 rounded-lg bg-error px-5 py-3 text-label-md text-white transition-opacity hover:opacity-90"
+            >
+              ลองอีกครั้ง
+            </button>
+          )}
         </div>
       </section>
     );
