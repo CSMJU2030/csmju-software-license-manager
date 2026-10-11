@@ -63,8 +63,8 @@ export default function RootLayout({
           displayName={DISPLAY_NAME}
           nav={NAV}
           user={{
-            initials: "AD",
-            roleLabel: "ผู้ดูแลระบบ",
+            initials: "CS",
+            roleLabel: "ผู้ใช้ระบบ",
           }}
           coreHubUrl={CORE_HUB_WEB_URL}
         >

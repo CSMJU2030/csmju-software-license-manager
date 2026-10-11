@@ -192,6 +192,8 @@ export default function SoftwareLicensesPage() {
   const [roleLoading, setRoleLoading] = useState(true);
 
   const canManageLicenses = subsystemRole === "LICENSE_ADMIN";
+  const canViewAssignments =
+    subsystemRole === "VIEWER" || canManageLicenses;
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -504,7 +506,7 @@ export default function SoftwareLicensesPage() {
   }
 
   async function openAssignment(license: SoftwareLicense) {
-    if (!canManageLicenses) {
+    if (!canViewAssignments) {
       return;
     }
 
@@ -1454,12 +1456,14 @@ export default function SoftwareLicensesPage() {
         </section>
       ) : null}
 
-      {canManageLicenses && assignmentLicense ? (
+      {canViewAssignments && assignmentLicense ? (
         <section className="mb-6 rounded-2xl bg-surface-container-low p-5 shadow-sm">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-on-surface">
-                จัดสรร License
+                {canManageLicenses
+                  ? "จัดสรร License"
+                  : "รายละเอียดการจัดสรร"}
               </h2>
 
               <p className="mt-1 text-sm text-on-surface-variant">
@@ -1489,44 +1493,46 @@ export default function SoftwareLicensesPage() {
             </button>
           </div>
 
-          <form
-            onSubmit={handleCreateAssignment}
-            className="flex flex-col gap-3 sm:flex-row sm:items-end"
-          >
-            <div className="flex-1">
-              <label
-                htmlFor="assignment-core-user-id"
-                className="mb-2 block text-sm font-semibold text-on-surface"
-              >
-                Core User ID *
-              </label>
-
-              <input
-                id="assignment-core-user-id"
-                type="text"
-                required
-                value={assignmentUserId}
-                onChange={(event) =>
-                  setAssignmentUserId(event.target.value)
-                }
-                placeholder="เช่น user-001"
-                className="w-full rounded-xl border border-outline bg-surface px-3 py-2.5 text-sm text-on-surface outline-none focus:border-primary"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={
-                assignmentSubmitting ||
-                assignmentLicense.remaining_count <= 0
-              }
-              className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          {canManageLicenses ? (
+            <form
+              onSubmit={handleCreateAssignment}
+              className="flex flex-col gap-3 sm:flex-row sm:items-end"
             >
-              {assignmentSubmitting
-                ? "กำลังจัดสรร..."
-                : "จัดสรร License"}
-            </button>
-          </form>
+              <div className="flex-1">
+                <label
+                  htmlFor="assignment-core-user-id"
+                  className="mb-2 block text-sm font-semibold text-on-surface"
+                >
+                  Core User ID *
+                </label>
+
+                <input
+                  id="assignment-core-user-id"
+                  type="text"
+                  required
+                  value={assignmentUserId}
+                  onChange={(event) =>
+                    setAssignmentUserId(event.target.value)
+                  }
+                  placeholder="เช่น user-001"
+                  className="w-full rounded-xl border border-outline bg-surface px-3 py-2.5 text-sm text-on-surface outline-none focus:border-primary"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={
+                  assignmentSubmitting ||
+                  assignmentLicense.remaining_count <= 0
+                }
+                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {assignmentSubmitting
+                  ? "กำลังจัดสรร..."
+                  : "จัดสรร License"}
+              </button>
+            </form>
+          ) : null}
 
           {assignmentError ? (
             <div
@@ -1576,9 +1582,11 @@ export default function SoftwareLicensesPage() {
                         วันที่จัดสรร
                       </th>
 
-                      <th className="px-4 py-3 font-semibold text-on-surface">
-                        จัดการ
-                      </th>
+                      {canViewAssignments ? (
+                        <th className="px-4 py-3 font-semibold text-on-surface">
+                          {canManageLicenses ? "จัดการ" : "รายการ"}
+                        </th>
+                      ) : null}
                     </tr>
                   </thead>
 
@@ -1593,26 +1601,28 @@ export default function SoftwareLicensesPage() {
                           {formatDate(assignment.assignedAt)}
                         </td>
 
-                        <td className="px-4 py-3">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              void handleRemoveAssignment(
-                                assignment,
-                              )
-                            }
-                            disabled={
-                              assignmentRemovingId !== null ||
-                              assignmentSubmitting
-                            }
-                            className="rounded-xl bg-error-container px-3 py-2 text-xs font-semibold text-on-error-container transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {assignmentRemovingId ===
-                            assignment.id
-                              ? "กำลังยกเลิก..."
-                              : "ยกเลิก"}
-                          </button>
-                        </td>
+                        {canManageLicenses ? (
+                          <td className="px-4 py-3">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void handleRemoveAssignment(
+                                  assignment,
+                                )
+                              }
+                              disabled={
+                                assignmentRemovingId !== null ||
+                                assignmentSubmitting
+                              }
+                              className="rounded-xl bg-error-container px-3 py-2 text-xs font-semibold text-on-error-container transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {assignmentRemovingId ===
+                              assignment.id
+                                ? "กำลังยกเลิก..."
+                                : "ยกเลิก"}
+                            </button>
+                          </td>
+                        ) : null}
                       </tr>
                     ))}
                   </tbody>
@@ -1901,54 +1911,71 @@ export default function SoftwareLicensesPage() {
                       </span>
                     </td>
 
-                    {canManageLicenses ? (
+                    {canViewAssignments ? (
                       <td className="px-4 py-4">
                         <div className="flex flex-col gap-2 sm:flex-row">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              void openAssignment(license)
-                            }
-                            disabled={
-                              deletingId === license.id ||
-                              updating ||
-                              editingLicense?.id === license.id ||
-                              assignmentSubmitting
-                            }
-                            className="rounded-xl bg-primary-container px-3 py-2 text-xs font-semibold text-on-primary-container transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            จัดสรร
-                          </button>
+                          {canManageLicenses ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void openAssignment(license)
+                              }
+                              disabled={
+                                deletingId === license.id ||
+                                updating ||
+                                editingLicense?.id === license.id ||
+                                assignmentSubmitting
+                              }
+                              className="rounded-xl bg-primary-container px-3 py-2 text-xs font-semibold text-on-primary-container transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              จัดสรร
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void openAssignment(license)
+                              }
+                              disabled={assignmentLoading}
+                              className="rounded-xl bg-primary-container px-3 py-2 text-xs font-semibold text-on-primary-container transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              ดูผู้ได้รับสิทธิ์
+                            </button>
+                          )}
 
-                          <button
-                            type="button"
-                            onClick={() => openEditForm(license)}
-                            disabled={
-                              deletingId === license.id ||
-                              assignmentLicense?.id === license.id
-                            }
-                            className="rounded-xl bg-surface-container-high px-3 py-2 text-xs font-semibold text-on-surface transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            แก้ไข
-                          </button>
+                          {canManageLicenses ? (
+                            <button
+                              type="button"
+                              onClick={() => openEditForm(license)}
+                              disabled={
+                                deletingId === license.id ||
+                                assignmentLicense?.id === license.id
+                              }
+                              className="rounded-xl bg-surface-container-high px-3 py-2 text-xs font-semibold text-on-surface transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              แก้ไข
+                            </button>
+                          ) : null}
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              void handleDeleteLicense(license)
-                            }
-                            disabled={
-                              deletingId !== null ||
-                              updating ||
-                              editingLicense?.id === license.id ||
-                              assignmentLicense?.id === license.id
-                            }
-                            className="rounded-xl bg-error-container px-3 py-2 text-xs font-semibold text-on-error-container transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {deletingId === license.id
-                              ? "กำลังลบ..."
-                              : "ลบ"}
-                          </button>
+                          {canManageLicenses ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void handleDeleteLicense(license)
+                              }
+                              disabled={
+                                deletingId !== null ||
+                                updating ||
+                                editingLicense?.id === license.id ||
+                                assignmentLicense?.id === license.id
+                              }
+                              className="rounded-xl bg-error-container px-3 py-2 text-xs font-semibold text-on-error-container transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {deletingId === license.id
+                                ? "กำลังลบ..."
+                                : "ลบ"}
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     ) : null}

@@ -7,7 +7,8 @@ import { SubsystemRole } from './core-hub-identity';
  * --------------------------------
  * student          VIEWER
  * alumni           VIEWER
- * staff            LICENSE_EDITOR
+ * staff            VIEWER
+ * lecturer         VIEWER
  * admin            LICENSE_ADMIN
  */
 export const CORE_ROLE_TO_SUBSYSTEM_ROLE: Readonly<
@@ -15,7 +16,8 @@ export const CORE_ROLE_TO_SUBSYSTEM_ROLE: Readonly<
 > = Object.freeze({
   student: SubsystemRole.VIEWER,
   alumni: SubsystemRole.VIEWER,
-  staff: SubsystemRole.LICENSE_EDITOR,
+  staff: SubsystemRole.VIEWER,
+  lecturer: SubsystemRole.VIEWER,
   admin: SubsystemRole.LICENSE_ADMIN,
 });
 

@@ -19,19 +19,8 @@ export enum Permission {
  */
 const VIEWER_PERMISSIONS: Permission[] = [
   Permission.SOFTWARE_LICENSE_READ,
-  Permission.SOFTWARE_LICENSE_EXPIRING_READ,
-];
-
-/**
- * Staff who manage licenses and assignments.
- */
-const LICENSE_EDITOR_PERMISSIONS: Permission[] = [
-  Permission.SOFTWARE_LICENSE_READ,
-  Permission.SOFTWARE_LICENSE_CREATE,
-  Permission.SOFTWARE_LICENSE_UPDATE,
   Permission.SOFTWARE_LICENSE_ASSIGNMENT_READ,
-  Permission.SOFTWARE_LICENSE_ASSIGNMENT_CREATE,
-  Permission.SOFTWARE_LICENSE_ASSIGNMENT_DELETE,
+  Permission.SOFTWARE_LICENSE_DASHBOARD_READ,
   Permission.SOFTWARE_LICENSE_EXPIRING_READ,
 ];
 
@@ -44,7 +33,6 @@ export const ROLE_PERMISSIONS: Readonly<
   Record<SubsystemRole, readonly Permission[]>
 > = Object.freeze({
   [SubsystemRole.VIEWER]: Object.freeze(VIEWER_PERMISSIONS),
-  [SubsystemRole.LICENSE_EDITOR]: Object.freeze(LICENSE_EDITOR_PERMISSIONS),
   [SubsystemRole.LICENSE_ADMIN]: Object.freeze(LICENSE_ADMIN_PERMISSIONS),
 });
 

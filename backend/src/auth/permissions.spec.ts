@@ -15,10 +15,10 @@ describe('Subsystem permission model', () => {
       expect(can(role, Permission.SOFTWARE_LICENSE_DELETE)).toBe(false);
     });
 
-    it('cannot manage license assignments', () => {
+    it('can read but cannot manage license assignments', () => {
       expect(
         can(role, Permission.SOFTWARE_LICENSE_ASSIGNMENT_READ),
-      ).toBe(false);
+      ).toBe(true);
       expect(
         can(role, Permission.SOFTWARE_LICENSE_ASSIGNMENT_CREATE),
       ).toBe(false);
@@ -33,48 +33,10 @@ describe('Subsystem permission model', () => {
       ).toBe(true);
     });
 
-    it('cannot read dashboard information', () => {
+    it('can read dashboard information', () => {
       expect(
         can(role, Permission.SOFTWARE_LICENSE_DASHBOARD_READ),
-      ).toBe(false);
-    });
-  });
-
-  describe('LICENSE_EDITOR', () => {
-    const role = SubsystemRole.LICENSE_EDITOR;
-
-    it('can read, create, and update software licenses', () => {
-      expect(can(role, Permission.SOFTWARE_LICENSE_READ)).toBe(true);
-      expect(can(role, Permission.SOFTWARE_LICENSE_CREATE)).toBe(true);
-      expect(can(role, Permission.SOFTWARE_LICENSE_UPDATE)).toBe(true);
-    });
-
-    it('cannot delete software licenses', () => {
-      expect(can(role, Permission.SOFTWARE_LICENSE_DELETE)).toBe(false);
-    });
-
-    it('can manage license assignments', () => {
-      expect(
-        can(role, Permission.SOFTWARE_LICENSE_ASSIGNMENT_READ),
       ).toBe(true);
-      expect(
-        can(role, Permission.SOFTWARE_LICENSE_ASSIGNMENT_CREATE),
-      ).toBe(true);
-      expect(
-        can(role, Permission.SOFTWARE_LICENSE_ASSIGNMENT_DELETE),
-      ).toBe(true);
-    });
-
-    it('can read expiring-license information', () => {
-      expect(
-        can(role, Permission.SOFTWARE_LICENSE_EXPIRING_READ),
-      ).toBe(true);
-    });
-
-    it('cannot read the dashboard', () => {
-      expect(
-        can(role, Permission.SOFTWARE_LICENSE_DASHBOARD_READ),
-      ).toBe(false);
     });
   });
 
@@ -102,7 +64,7 @@ describe('Subsystem permission model', () => {
     ).toBe(false);
 
     expect(
-      canAny(SubsystemRole.LICENSE_EDITOR, [
+      canAny(SubsystemRole.LICENSE_ADMIN, [
         Permission.SOFTWARE_LICENSE_DELETE,
         Permission.SOFTWARE_LICENSE_UPDATE,
       ]),
